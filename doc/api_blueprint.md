@@ -1,0 +1,22 @@
+Updated API Blueprint Table
+
+Function	Purpose	Ownership Rules	Invariants Affected	Error Handling / Return
+vector_create	Allocate a new vector	Vector owns internal array	capacity ≥ 1, size = 0	Returns vector pointer or NULL
+vector_free	Free all memory	Frees internal array; user frees pointed-to objects	Vector pointer = NULL	None
+vector_size	Get number of elements	Read-only	size ≤ capacity	Returns size_t
+vector_capacity	Get current capacity	Read-only	None	Returns size_t
+vector_push_back	Append element	Copies element into internal array	size ≤ capacity, contiguous memory	Returns success/failure code
+vector_pop_back	Remove last element	Frees last element slot; user frees pointed-to objects	size ≤ capacity	Returns success/failure code
+vector_insert	Insert element at index	Copies element; vector owns copy	size ≤ capacity, contiguous memory, no partial updates	Returns success/failure code
+vector_remove	Remove element at index	Frees slot; user frees pointed-to objects	size ≤ capacity, contiguous memory	Returns success/failure code
+vector_get	Access element at index	Pointer to internal element	Index < size	Returns pointer or NULL
+vector_set	Overwrite element at index	Copies element; vector owns copy	Index < size	Returns success/failure code
+vector_clear	Remove all elements	Frees slots; user frees pointed-to objects	size = 0, capacity unchanged	None
+vector_reserve (optional)	Ensure capacity ≥ requested	Reallocates internal array if needed	capacity ≥ requested, size unchanged	Returns success/failure code
+vector_shrink_to_fit (optional)	Reduce capacity to current size	Reallocates internal array	capacity = size	Returns success/failure code
+vector_push_front (convenience)	Insert at front, shift elements	Copies element; vector owns copy	size ≤ capacity, contiguous memory	Returns success/failure code
+vector_pop_front (convenience)	Remove first element, shift remaining	Frees slot; user frees pointed-to objects	size ≤ capacity	Returns success/failure code
+vector_copy (convenience)	Duplicate entire vector	New vector owns its internal array	Size, capacity preserved	Returns new vector pointer or NULL
+vector_swap (convenience)	Swap two elements by index	Internal memory swapped	Size/capacity unchanged	Returns success/failure code
+vector_find (convenience)	Locate element by comparator	Read-only	None	Returns index or -1 if not found
+vector_clone_element (optional)	Duplicate single element using copy callback	User provides copy function; vector owns copy	None	Returns success/failure code

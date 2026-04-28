@@ -1,65 +1,21 @@
-1. Overview
-
-    - The vector library provides a generic dynamic array for C, supporting:
-    - Automatic resizing
-    - Random access
-    - Insertion and removal at any index
-    - Push/pop operations at the back (and optionally at the front)
-    - Safe memory management and runtime type safety
-    - It can store any type of element (stack values or pointers).
-
-2. Element Size and Type Safety
-
-    - Element size (element_size) is specified 
-      at vector creation (sizeof(type)).
-    - All insertions, removals, and copies must match this size, 
-      otherwise the function fails.
-    - This enforces runtime type consistency.
-
-3. Invariants
-
-    - size ≤ capacity at all times
-    - Memory is always contiguous
-    - Insertions and removals do not reorder data
-    - Functions that return pointers return NULL on failure
-    - Operations never leave the vector partially updated
-    - Capacity is never 0; if uninitialized or freed, vector pointer is NULL
-
-4. Ownership Rules
-
-    - The vector owns its internal array.
-    - For stack values, vector stores copies internally.
-    - For pointer elements, the vector stores the pointer only; 
-      user manages pointed-to memory.
-
-5. Growth Strategy
-
-    - Initial capacity: default 64 elements
-    - Upsize: multiply capacity by 1.5 when size ≥ capacity
-    - Downsize: optional, but never below initial capacity
-    - All internal memory allocations are calculated as: 
-      capacity × element_size
-    - User cannot manually resize elements 
-      (except via optional reserve or shrink_to_fit)
-
-6. Error Handling
-
-    Functions that can fail either return:
-     - Pointer (NULL on failure)
-     - Success/failure code (enum)
-     - Vector always remains in a valid state after failure.
-    Attempting to insert a mismatched element size results in an error.
-
-7. Convenience Functions
-
-    - vector_push_front / vector_pop_front
-        modify the front of the array, shifting elements
-    - vector_copy 
-        duplicate entire vector
-    - vector_swap 
-        swap two elements by index
-    - vector_find 
-        locate an element using a comparator function
-    - vector_clone_element 
-        copy a single element using a user-provided copy callback
-
+| Function                          | Purpose                                      | Ownership Rules                                        | Invariants Affected                                      | Error Handling / Return            |
+| --------------------------------- | -------------------------------------------- | ------------------------------------------------------ | -------------------------------------------------------- | ---------------------------------- |
+| `vector_create`                   | Allocate a new vector                        | Vector owns internal array                             | `capacity ≥ 1`, `size = 0`                               | Returns vector pointer or NULL     |
+| `vector_free`                     | Free all memory                              | Frees internal array; user frees pointed-to objects    | Vector pointer = NULL                                    | None                               |
+| `vector_size`                     | Get number of elements                       | Read-only                                              | `size ≤ capacity`                                        | Returns `size_t`                   |
+| `vector_capacity`                 | Get current capacity                         | Read-only                                              | None                                                     | Returns `size_t`                   |
+| `vector_push_back`                | Append element                               | Copies element into internal array                     | `size ≤ capacity`, contiguous memory                     | Returns success/failure code       |
+| `vector_pop_back`                 | Remove last element                          | Frees last element slot; user frees pointed-to objects | `size ≤ capacity`                                        | Returns success/failure code       |
+| `vector_insert`                   | Insert element at index                      | Copies element; vector owns copy                       | `size ≤ capacity`, contiguous memory, no partial updates | Returns success/failure code       |
+| `vector_remove`                   | Remove element at index                      | Frees slot; user frees pointed-to objects              | `size ≤ capacity`, contiguous memory                     | Returns success/failure code       |
+| `vector_get`                      | Access element at index                      | Pointer to internal element                            | Index < size                                             | Returns pointer or NULL            |
+| `vector_set`                      | Overwrite element at index                   | Copies element; vector owns copy                       | Index < size                                             | Returns success/failure code       |
+| `vector_clear`                    | Remove all elements                          | Frees slots; user frees pointed-to objects             | `size = 0`, capacity unchanged                           | None                               |
+| `vector_reserve` (optional)       | Ensure capacity ≥ requested                  | Reallocates internal array if needed                   | `capacity ≥ requested`, size unchanged                   | Returns success/failure code       |
+| `vector_shrink_to_fit` (optional) | Reduce capacity to current size              | Reallocates internal array                             | `capacity = size`                                        | Returns success/failure code       |
+| `vector_push_front` (convenience) | Insert at front, shift elements              | Copies element; vector owns copy                       | `size ≤ capacity`, contiguous memory                     | Returns success/failure code       |
+| `vector_pop_front` (convenience)  | Remove first element, shift remaining        | Frees slot; user frees pointed-to objects              | `size ≤ capacity`                                        | Returns success/failure code       |
+| `vector_copy` (convenience)       | Duplicate entire vector                      | New vector owns its internal array                     | Size, capacity preserved                                 | Returns new vector pointer or NULL |
+| `vector_swap` (convenience)       | Swap two elements by index                   | Internal memory swapped                                | Size/capacity unchanged                                  | Returns success/failure code       |
+| `vector_find` (convenience)       | Locate element by comparator                 | Read-only                                              | None                                                     | Returns index or -1 if not found   |
+| `vector_clone_element` (optional) | Duplicate single element using copy callback | User provides copy function; vector owns copy          | None                                                     | Returns success/failure code       |
